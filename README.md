@@ -7,8 +7,8 @@ This project creates a web server using FastAPI and deploys it to EC2 using Dock
 - Create an t4g.nano instance (cheapest arm-based instance) with Ubuntu 22.04 and a 8GiB gp3 volume.
 - Ensure that the EC2 instance is deployed into a public subnet and has the correct CIDR block whitelisted for SSH access.
 - Remember to `chmod 400` the private key
-- Install Docker and NGINX:
 
+- Install Docker:
 ```bash
 sudo apt update
 sudo apt upgrade
@@ -31,20 +31,21 @@ sudo apt install docker-ce docker-ce-cli containerd.io
 
 # Verify installation worked
 sudo docker run hello-world
-
-sudo apt install nginx
 ```
+
+- Install NGINX: `sudo apt install nginx`
 - Create NGINX config file: `sudo nano /etc/nginx/sites-enabled/fastapi-web-server`
 - Add the following:
 ```
 server {
     listen 80;
-    server_name 3.65.82.150;
+    server_name <PUBLIC_IP>;
     location / {
         proxy_pass http://127.0.0.1:80;
     }
 }
 ```
 - Restart NGINX: `sudo service nginx restart`
+
 - Clone repository: `git clone https://github.com/philipbaltzersen/fastapi_web_server.git`
 - Build Docker image `docker build . -t server`
