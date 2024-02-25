@@ -52,6 +52,13 @@ server {
 }
 ```
 - Restart NGINX: `sudo service nginx restart`
-
-- Clone repository: `git clone https://github.com/philipbaltzersen/fastapi_web_server.git`
+- Create a private key for connection to GitHub
+```
+cd .ssh
+ssh-keygen -t ed25519 -C "my_email@mail.com"
+ssh-add github
+```
+- Add `github.pub` to SSH keys in GitHub settings
+- Clone repository: `git clone git@github.com:philipbaltzersen/fastapi_web_server.git`
 - Build Docker image `docker build . -t server`
+- Run container: `docker run --name server -d server`
