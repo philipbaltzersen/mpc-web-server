@@ -29,6 +29,12 @@ sudo apt update
 
 sudo apt install docker-ce docker-ce-cli containerd.io
 
+# Enable running Docker as non-root
+sudo groupadd docker
+sudo usermod -aG docker ubuntu
+# Need to reconnect for changes to take effect
+exit
+
 # Verify installation worked
 sudo docker run hello-world
 ```
