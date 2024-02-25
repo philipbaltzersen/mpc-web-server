@@ -47,7 +47,7 @@ server {
     listen 80;
     server_name <PUBLIC_IP>;
     location / {
-        proxy_pass http://127.0.0.1:80;
+        proxy_pass http://127.0.0.1:8000;
     }
 }
 ```
