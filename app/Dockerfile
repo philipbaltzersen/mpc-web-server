@@ -6,6 +6,6 @@ COPY ./requirements.txt /code/requirements.txt
 
 RUN pip install --no-cache-dir -r /code/requirements.txt
 
-COPY ./app /code/app
+COPY ./src /code/app
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--proxy-headers"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers"]
