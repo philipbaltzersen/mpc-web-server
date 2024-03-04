@@ -1,6 +1,6 @@
 FROM postgres:16.2
 
-COPY .password-word /run/secrets/db_password
+COPY .db-password /run/secrets/db_password
 
 ENV POSTGRES_PASSWORD_FILE = /run/secrets/db_password
 
