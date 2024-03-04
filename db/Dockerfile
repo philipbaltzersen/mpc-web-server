@@ -1,6 +1,7 @@
 FROM postgres:16.2
 
-ENV POSTGRES_PASSWORD password
-ENV POSTGRES_DB data
+COPY .password-word /run/secrets/db_password
+
+ENV POSTGRES_PASSWORD_FILE = /run/secrets/db_password
 
 COPY init.sql /docker-entrypoint-initdb.d/
