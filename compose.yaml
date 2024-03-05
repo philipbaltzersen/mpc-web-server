@@ -1,0 +1,50 @@
+services:
+  db:
+    build: db
+    user: postgres
+    expose:
+      - 5432
+    networks:
+      - backnet
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    secrets:
+      - db-password
+    environment:
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+
+  api:
+    build: api
+    ports:
+      - 8000:8000
+    networks:
+      - backnet
+      - frontnet
+    depends_on:
+      db:
+        condition: service_healthy
+
+  proxy:
+    build: proxy
+    ports:
+      - 80:80
+    networks:
+      - frontnet
+    depends_on:
+      - api
+
+volumes:
+  db-data:
+
+secrets:
+  db-password:
+    file: ./db/db-password
+
+networks:
+  backnet:
+  frontnet:
