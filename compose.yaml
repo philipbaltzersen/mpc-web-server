@@ -7,7 +7,8 @@ services:
     expose:
       - 5432
     networks:
-      - backnet
+      backnet:
+        ipv4_address: "192.168.0.10"
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:
@@ -21,12 +22,14 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/db-password
 
   api:
-    build: api
+    build: app
     ports:
       - 8000:8000
     networks:
-      - backnet
-      - frontnet
+      backnet:
+        ipv4_address: "192.168.0.11"
+      frontnet:
+        ipv4_address: "192.168.1.11"
     depends_on:
       db:
         condition: service_healthy
@@ -34,9 +37,10 @@ services:
   proxy:
     build: proxy
     ports:
-      - 80:80
+      - 8080:80
     networks:
-      - frontnet
+      frontnet:
+        ipv4_address: "192.168.1.10"
     depends_on:
       - api
 
@@ -45,8 +49,17 @@ volumes:
 
 secrets:
   db-password:
-    file: ./db/db-password
+    file: ./db/.db-password
 
 networks:
   backnet:
+    ipam:
+      driver: default
+      config:
+        - subnet: "192.168.0.0/24"
   frontnet:
+    ipam:
+      driver: default
+      config:
+        - subnet: "192.168.1.0/24"
+
