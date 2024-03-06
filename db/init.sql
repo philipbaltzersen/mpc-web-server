@@ -1,3 +1,9 @@
+CREATE TABLE results (
+    result_id SERIAL PRIMARY KEY,
+    owners TEXT[] NOT NULL,
+    result JSONB NOT NULL
+);
+
 CREATE TABLE data (
     entry_id SERIAL PRIMARY KEY,
     owner VARCHAR(255) NOT NULL,
