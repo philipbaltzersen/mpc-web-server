@@ -6,7 +6,7 @@ CREATE TABLE results (
 
 CREATE TABLE data (
     entry_id SERIAL PRIMARY KEY,
-    owner VARCHAR(255) NOT NULL,
+    owner TEXT NOT NULL,
     data JSONB NOT NULL
 );
 
