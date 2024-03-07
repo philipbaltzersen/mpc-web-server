@@ -16,8 +16,9 @@ def root():
 def read_data(owner: str):
     with conn.cursor() as cur:
         cur.execute(f"SELECT * FROM data WHERE owner = '{owner}';")
-        return cur.fetchall()
+        result = cur.fetchall()
     conn.close()
+    return result
 
 @app.get("/analyze")
 def analyze_data():
