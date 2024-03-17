@@ -1,6 +1,6 @@
-# Simple web server
+# TEE-based multi-party computation web server
 
-This project creates a web server using FastAPI and deploys it to EC2 using Docker and NGINX. 
+This project aims to create a web server that enables two separate data owners to perform statistical analysis on their combined data, while still encrypting it with their own key, using AWS Nitro Enclaves. 
 
 
 ## EC2 set-up
@@ -59,6 +59,6 @@ ssh-keygen -t ed25519 -C "my_email@mail.com"
 ssh-add github
 ```
 - Add `github.pub` to SSH keys in GitHub settings
-- Clone repository: `git clone git@github.com:philipbaltzersen/fastapi_web_server.git`
+- Clone repository: `git clone git@github.com:philipbaltzersen/mpc-web-server.git`
 - Build Docker image `docker build . -t server`
 - Run container: `docker run --name server -d server`
