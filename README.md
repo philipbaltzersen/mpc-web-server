@@ -39,21 +39,6 @@ exit
 sudo docker run hello-world
 ```
 
-- Install NGINX: `sudo apt install nginx`
-- Create NGINX config file: `sudo nano /etc/nginx/sites-enabled/fastapi-web-server`
-- Add the following:
-```
-server {
-    listen 80;
-    server_name <PUBLIC_IP>;
-    location / {
-        proxy_pass http://127.0.0.1:8000;
-    }
-}
-```
-- Restart NGINX: `sudo service nginx restart`
-- Create a private key for connection to GitHub
-```
 cd .ssh
 ssh-keygen -t ed25519 -C "my_email@mail.com"
 ssh-add github
