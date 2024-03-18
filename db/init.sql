@@ -7,8 +7,8 @@ CREATE TABLE analyses (
 );
 
 CREATE TABLE results (
-    result_id SERIAL PRIMARY KEY,
-    owners TEXT[] NOT NULL,
+    id UUID PRIMARY KEY,
+    analysis_id UUID NOT NULL REFERENCES analyses(id) ON DELETE CASCADE,
     result JSONB NOT NULL
 );
 
