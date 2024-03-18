@@ -1,7 +1,8 @@
 CREATE TABLE analyses (
     id UUID PRIMARY KEY,
-    statistical_method TEXT NOT NULL,
+    owners TEXT[] NOT NULL,
     file_names TEXT[] NOT NULL,
+    statistical_method TEXT NOT NULL,
     method_arguments JSONB
 );
 
