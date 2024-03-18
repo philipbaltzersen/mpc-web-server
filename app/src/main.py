@@ -1,7 +1,8 @@
 import uuid
 
 import psycopg2  # type: ignore
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, UploadFile
+from fastapi.responses import HTMLResponse
 
 from .connect import get_conn
 from .models import Analysis
@@ -10,8 +11,21 @@ app = FastAPI()
 
 
 @app.get("/")
-def root():
-    return {"Hello": "World"}
+async def main():
+    content = """
+<body>
+<form action="/upload" enctype="multipart/form-data" method="post">
+<input name="files" type="file" multiple>
+<input type="submit">
+</form>
+</body>
+    """
+    return HTMLResponse(content=content)
+
+
+@app.post("/upload")
+async def upload_files(files: list[UploadFile]):
+    return {"filenames": [file.filename for file in files]}
 
 
 @app.post("/analyses/")
