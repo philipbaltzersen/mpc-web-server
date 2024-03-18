@@ -3,6 +3,7 @@ import scipy.stats as sp
 from fastapi import FastAPI
 
 from .connect import connect
+from .models import Analysis
 
 app = FastAPI()
 
@@ -11,6 +12,11 @@ conn = connect()
 @app.get("/")
 def root():
     return {"Hello": "World"}
+
+@app.post("/analyses/")
+def add_analysis(analysis: Analysis):
+    return analysis
+
 
 @app.get("/data/{owner}")
 def read_data(owner: str):
