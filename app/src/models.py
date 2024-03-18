@@ -9,7 +9,7 @@ class StatisticalMethod(Enum):
 
 
 class Analysis(BaseModel):
-    id: str | None
+    id: str | None = None
     owners: list[str]
     file_names: list[str]
     statistical_method: StatisticalMethod
