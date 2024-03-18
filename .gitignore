@@ -161,3 +161,4 @@ cython_debug/
 
 db/.db-password
 .test.ipynb
+.call_api.ipynb
