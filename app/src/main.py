@@ -1,6 +1,6 @@
 import uuid
 
-import psycopg2
+import psycopg2  # type: ignore
 from fastapi import Depends, FastAPI, HTTPException
 
 from .connect import get_conn
@@ -12,6 +12,7 @@ app = FastAPI()
 @app.get("/")
 def root():
     return {"Hello": "World"}
+
 
 @app.post("/analyses/")
 def add_analysis(analysis: Analysis, conn = Depends(get_conn)) -> Analysis:
@@ -25,6 +26,24 @@ def add_analysis(analysis: Analysis, conn = Depends(get_conn)) -> Analysis:
         conn.commit()
         
     return analysis
+
+
+@app.get("/analyses")
+def get_analysis_by_owner(owner: str, conn = Depends(get_conn)) -> list[Analysis]:
+    with conn.cursor() as cur:
+        cur.execute(f"SELECT * FROM analyses WHERE owners @> ARRAY['{owner}'];")
+        result = cur.fetchall()
+    
+    return [
+        Analysis(
+            id=row[0],
+            owners=row[1],
+            file_names=row[2],
+            statistical_method=row[3],
+            method_arguments=row[4],
+        )
+        for row in result
+    ]
 
 
 @app.get("/analyses/{analysis_id}")
