@@ -1,3 +1,10 @@
+CREATE TABLE analyses (
+    id UUID PRIMARY KEY,
+    statistical_method TEXT NOT NULL,
+    file_names TEXT[] NOT NULL,
+    method_arguments JSONB
+);
+
 CREATE TABLE results (
     result_id SERIAL PRIMARY KEY,
     owners TEXT[] NOT NULL,
