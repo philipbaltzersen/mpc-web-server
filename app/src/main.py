@@ -1,7 +1,9 @@
+import json
 import uuid
+from typing import Annotated
 
 import psycopg2  # type: ignore
-from fastapi import Depends, FastAPI, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, File, HTTPException
 from fastapi.responses import HTMLResponse
 
 from .connect import get_conn
@@ -15,7 +17,7 @@ async def main():
     content = """
 <body>
 <form action="/upload" enctype="multipart/form-data" method="post">
-<input name="files" type="file" multiple>
+<input name="file" type="file" multiple>
 <input type="submit">
 </form>
 </body>
@@ -24,8 +26,8 @@ async def main():
 
 
 @app.post("/upload")
-async def upload_files(files: list[UploadFile]):
-    return {"filenames": [file.filename for file in files]}
+async def upload_file(file: Annotated[bytes, File()]):
+    return {"file_size": len(file)}
 
 
 @app.post("/analyses/")
@@ -33,10 +35,15 @@ def add_analysis(analysis: Analysis, conn = Depends(get_conn)) -> Analysis:
     if analysis.id is None:
         analysis.id = str(uuid.uuid4())
     
-    query = "INSERT INTO analyses (id, owners, file_names, statistical_method) VALUES (%s, %s, %s, %s);"
+    for data_file in analysis.data_files:
+        data_file.is_uploaded = False
+
+    data_files_json = json.dumps([data_file.model_dump() for data_file in analysis.data_files])
+    
+    query = "INSERT INTO analyses (id, owners, data_files, statistical_method) VALUES (%s, %s, %s, %s);"
     
     with conn.cursor() as cur:
-        cur.execute(query, (analysis.id, analysis.owners, analysis.file_names, analysis.statistical_method.value))
+        cur.execute(query, (analysis.id, analysis.owners, data_files_json, analysis.statistical_method.value))
         conn.commit()
         
     return analysis
@@ -52,7 +59,7 @@ def get_analysis_by_owner(owner: str, conn = Depends(get_conn)) -> list[Analysis
         Analysis(
             id=row[0],
             owners=row[1],
-            file_names=row[2],
+            data_files=row[2],
             statistical_method=row[3],
             method_arguments=row[4],
         )
@@ -75,7 +82,7 @@ def get_analysis(analysis_id: str, conn = Depends(get_conn)) -> Analysis:
     return Analysis(
         id=result[0],
         owners=result[1],
-        file_names=result[2],
+        data_files=result[2],
         statistical_method=result[3],
         method_arguments=result[4],
     )
