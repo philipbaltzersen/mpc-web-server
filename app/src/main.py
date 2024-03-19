@@ -5,7 +5,7 @@ import uuid
 import boto3
 import psycopg2
 from botocore.exceptions import ClientError
-from fastapi import Depends, FastAPI, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, Form, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse
 
 from .connect import get_conn
@@ -21,6 +21,7 @@ async def main():
     content = """
 <body>
 <form action="/upload" enctype="multipart/form-data" method="post">
+<input name="analysis_id" type="text">
 <input name="file" type="file" multiple>
 <input type="submit">
 </form>
@@ -30,7 +31,7 @@ async def main():
 
 
 @app.post("/upload")
-async def upload_file(file: UploadFile):
+async def upload_file(file: UploadFile, analysis_id: str = Form(...), conn = Depends(get_conn)):
     s3_client = boto3.client(
         "s3",
         region_name=os.environ["AWS_REGION"],
@@ -42,7 +43,12 @@ async def upload_file(file: UploadFile):
     except ClientError as e:
         raise HTTPException(status_code=400, detail="Failed to upload file") from e
     
-    return {"message": f"{file.filename} uploaded successfully to {os.environ['AWS_BUCKET_NAME']}"}
+    return {
+        "message": "File uploaded successfully",
+        "filename": file.filename,
+        "analysis_id": analysis_id,
+        "storage_location": os.environ["AWS_BUCKET_NAME"],
+    }
 
 
 @app.post("/analyses/")
