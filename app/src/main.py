@@ -1,15 +1,21 @@
 import json
+import io
+import os
 import uuid
 from typing import Annotated
 
+import boto3
 import psycopg2  # type: ignore
+from botocore.exceptions import ClientError
 from fastapi import Depends, FastAPI, File, HTTPException
 from fastapi.responses import HTMLResponse
 
 from .connect import get_conn
 from .models import Analysis
+from .utils import load_dotenv
 
 app = FastAPI()
+load_dotenv()
 
 
 @app.get("/")
@@ -27,7 +33,18 @@ async def main():
 
 @app.post("/upload")
 async def upload_file(file: Annotated[bytes, File()]):
-    return {"file_size": len(file)}
+    s3_client = boto3.client(
+        "s3",
+        region_name=os.environ["AWS_REGION"],
+        aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+        aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+    )
+    try:
+        s3_client.upload_fileobj(io.BytesIO(file), os.environ["AWS_BUCKET_NAME"], "test.csv")
+    except ClientError as e:
+        raise HTTPException(status_code=400, detail="Failed to upload file") from e
+    
+    return {"message": "File uploaded successfully"}
 
 
 @app.post("/analyses/")
