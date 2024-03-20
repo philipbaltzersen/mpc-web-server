@@ -19,4 +19,3 @@ class Analysis(BaseModel):
     data_files: dict[str, DataFile]
     statistical_method: StatisticalMethod
     method_arguments: dict[str, str | int | float | bool] | None = None
-
