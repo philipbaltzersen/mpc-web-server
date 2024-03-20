@@ -1,9 +1,12 @@
 import json
 import os
 import uuid
+from io import StringIO
 
 import boto3
+import pandas as pd
 import psycopg2
+import scipy.stats as sp
 from botocore.exceptions import ClientError
 from fastapi import Depends, FastAPI, Form, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse
@@ -111,3 +114,31 @@ def get_analysis(analysis_id: str, conn = Depends(get_conn)) -> Analysis:
         statistical_method=result[3],
         method_arguments=result[4],
     )
+
+@app.get("/analyses/{analysis_id}/run")
+def run_analysis(analysis_id: str, conn = Depends(get_conn)):
+    analysis = get_analysis(analysis_id, conn)
+
+    for file in analysis.data_files.values():
+        if not file.is_uploaded:
+            raise HTTPException(status_code=400, detail="All data files must be uploaded before running analysis")
+    
+    s3_client = boto3.client(
+        "s3",
+        region_name=os.environ["AWS_REGION"],
+        aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+        aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+    )
+
+    df_list = []
+    for filename in analysis.data_files:
+        obj = s3_client.get_object(Bucket=os.environ["AWS_BUCKET_NAME"], Key=filename)
+        body = obj["Body"].read().decode("utf-8")
+        data = StringIO(body)
+        df_list.append(pd.read_csv(data))
+
+    df_combined = pd.concat(df_list)
+
+    result = sp.ttest_rel(df_combined.iloc[:, 0], df_combined.iloc[:, 1])
+
+    return {"statistic": result.statistic, "p_value": result.pvalue}
