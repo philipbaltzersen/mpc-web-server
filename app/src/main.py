@@ -42,7 +42,14 @@ async def upload_file(file: UploadFile, analysis_id: str = Form(...), conn = Dep
         s3_client.upload_fileobj(file.file, os.environ["AWS_BUCKET_NAME"], file.filename)
     except ClientError as e:
         raise HTTPException(status_code=400, detail="Failed to upload file") from e
-    
+
+    with conn.cursor() as cur:
+        try:
+            cur.execute(f"UPDATE analyses SET data_files['{file.filename}']['is_uploaded'] = to_jsonb(true) WHERE id = '{analysis_id}';")
+            conn.commit()
+        except Exception as e:
+            raise HTTPException(status_code=500, detail="Failed to update database") from e
+
     return {
         "message": "File uploaded successfully",
         "filename": file.filename,
