@@ -55,11 +55,8 @@ async def upload_file(file: UploadFile, analysis_id: str = Form(...), conn = Dep
 def add_analysis(analysis: Analysis, conn = Depends(get_conn)) -> Analysis:
     if analysis.id is None:
         analysis.id = str(uuid.uuid4())
-    
-    for data_file in analysis.data_files:
-        data_file.is_uploaded = False
 
-    data_files_json = json.dumps([data_file.model_dump() for data_file in analysis.data_files])
+    data_files_json = json.dumps({k: v.model_dump() for k, v in analysis.data_files.items()})
     
     query = "INSERT INTO analyses (id, owners, data_files, statistical_method) VALUES (%s, %s, %s, %s);"
     
