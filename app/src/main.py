@@ -61,7 +61,7 @@ async def upload_file(file: UploadFile, analysis_id: str = Form(...), conn = Dep
     }
 
 
-@app.post("/analyses/")
+@app.post("/analyses")
 def add_analysis(analysis: Analysis, conn = Depends(get_conn)) -> Analysis:
     if analysis.id is None:
         analysis.id = str(uuid.uuid4())
