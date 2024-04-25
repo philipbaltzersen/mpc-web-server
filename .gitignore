@@ -160,6 +160,5 @@ cython_debug/
 #.idea/
 
 db/.db-password
-.test.ipynb
-.call_api.ipynb
+*.ipynb
 .DS_Store
